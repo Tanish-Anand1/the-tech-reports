@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article — The Tech Reports</title>
+    <meta name="description" content="">
+    <meta name="theme-color" content="#0f1923">
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar__left">
+                <span class="top-bar__date" id="topBarDate"></span>
+            </div>
+            <div class="top-bar__right">
+                <a href="#">E-Paper</a>
+                <a href="#">Newsletter</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Masthead -->
+    <header class="masthead">
+        <div class="container">
+            <div class="masthead-left">
+                <button class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></button>
+            </div>
+            <div class="masthead-center">
+                <a href="index.html">
+                    <div class="masthead__brand">The Tech <em>Reports</em></div>
+                    <div class="masthead__tagline">Truth · Technology · Tomorrow</div>
+                </a>
+            </div>
+            <div class="masthead-right">
+                <button class="btn-subscribe">Subscribe</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Nav -->
+    <nav class="main-nav">
+        <div class="container">
+            <div class="main-nav__primary">
+                <a href="index.html">Home</a>
+                <a href="index.html">Technology</a>
+                <a href="index.html">India</a>
+                <a href="index.html">World</a>
+                <a href="index.html">Business</a>
+                <a href="index.html">Startups</a>
+                <a href="index.html">Entertainment</a>
+                <a href="index.html">Sports</a>
+                <a href="index.html">Opinion</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <main>
+        <article class="article-page" id="articlePage">
+            <div style="text-align:center;padding:60px 0;">
+                <div class="skeleton" style="height:32px;width:70%;margin:0 auto 16px"></div>
+                <div class="skeleton" style="height:16px;width:50%;margin:0 auto 10px"></div>
+                <div class="skeleton" style="height:16px;width:40%;margin:0 auto"></div>
+            </div>
+        </article>
+
+        <section class="more-stories" id="moreStoriesSection">
+            <div class="section-head">More from The Tech Reports</div>
+            <div id="moreArticles"></div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <hr class="footer-rule">
+        <div class="footer-top">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <div class="footer-brand__title">The Tech <em>Reports</em></div>
+                        <p>Award-winning technology journalism. In-depth analysis, breaking news, and expert opinions on AI, startups, and digital innovation.</p>
+                        <div class="footer-social">
+                            <a href="#" title="Twitter/X" class="footer-social__btn">𝕏</a>
+                            <a href="#" title="Facebook" class="footer-social__btn">f</a>
+                            <a href="#" title="LinkedIn" class="footer-social__btn">in</a>
+                        </div>
+                    </div>
+                    <div class="footer-col"><h4>Sections</h4><a href="index.html">Technology</a><a href="index.html">India</a><a href="index.html">World</a><a href="index.html">Business</a><a href="index.html">Startups</a></div>
+                    <div class="footer-col"><h4>Company</h4><a href="#">About Us</a><a href="#">Contact</a><a href="#">Advertise</a><a href="#">Careers</a></div>
+                    <div class="footer-col"><h4>More</h4><a href="#">E-Paper</a><a href="#">Newsletters</a><a href="#">RSS Feed</a><a href="#">Archives</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <span>© 2026 The Tech Reports. All rights reserved. Powered by AI journalism.</span>
+                <div class="footer-bottom__links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Sitemap</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('topBarDate').textContent = TTR.getCurrentDateString();
+    });
+
+    document.addEventListener('ttrDataReady', () => {
+        const id = new URLSearchParams(window.location.search).get('id');
+        if (!id) return show404();
+
+        const article = TTR.getArticleById(id);
+        if (!article) return show404();
+
+        // Update meta
+        document.title = `${article.title} — The Tech Reports`;
+        document.querySelector('meta[name="description"]').content = article.subtitle || TTR.truncate(article.content, 155);
+
+        // Track view
+        TTR.updateArticle(article.id, { views: (article.views || 0) + 1 });
+
+        // Format content
+        const paragraphs = article.content.split('\n\n').filter(p => p.trim()).map(p => {
+            p = p.trim();
+            if (p.startsWith('"') || p.startsWith('\u201C'))
+                return `<blockquote>${p}</blockquote>`;
+            return `<p>${p}</p>`;
+        }).join('');
+
+        const published = new Date(article.createdAt);
+        const dateStr = published.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+        const timeStr = published.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
+
+        document.getElementById('articlePage').innerHTML = `
+            <div class="article-page__breadcrumb">
+                <a href="index.html">Home</a> / <a href="index.html">${article.category}</a>
+            </div>
+            <div class="article-page__category ${TTR.getCategoryClass(article.category)}">${article.category}</div>
+            <h1 class="article-page__title">${article.title}</h1>
+            ${article.subtitle ? `<p class="article-page__subtitle">${article.subtitle}</p>` : ''}
+            <div class="article-page__meta">
+                Published ${dateStr}, ${timeStr} IST
+                &nbsp;|&nbsp;
+                By <strong class="article-page__author">${article.author || 'The Tech Reports Correspondent'}</strong>
+                ${article.location ? `&nbsp;|&nbsp; ${article.location}` : ''}
+            </div>
+            ${article.image ? `<img src="${article.image}" alt="${article.title}" class="article-page__hero" onerror="this.style.display='none'"><p class="article-page__caption">${article.author ? article.author + ' | ' : ''}Photo: The Tech Reports</p>` : ''}
+            <div class="article-page__content">${paragraphs}</div>
+            ${article.sourceUrl ? `<div style="margin-top:24px;padding:14px 18px;background:var(--bg-section);border-left:3px solid var(--brand-blue-link);border-radius:4px;font-family:var(--font-ui);font-size:var(--text-xs);color:var(--ink-caption);">
+                <strong style="color:var(--ink-headline);">Source:</strong> ${article.sourcePublisher || 'External'} · <a href="${article.sourceUrl}" target="_blank" rel="noopener" style="color:var(--brand-blue-link);text-decoration:underline;">Read original article →</a>
+            </div>` : ''}
+            <div class="article-page__share">
+                <span class="article-page__share-label">Share</span>
+                <button class="share-btn whatsapp" title="WhatsApp" onclick="share('wa')">W</button>
+                <button class="share-btn twitter" title="X" onclick="share('x')">𝕏</button>
+                <button class="share-btn facebook" title="Facebook" onclick="share('fb')">f</button>
+                <button class="share-btn email" title="Email" onclick="share('em')">✉</button>
+                <button class="share-btn copy" title="Copy Link" onclick="copyLink()">🔗</button>
+            </div>
+        `;
+
+        // More articles
+        const more = TTR.getPublishedArticles().filter(a => a.id !== article.id).slice(0, 3);
+        const moreEl = document.getElementById('moreArticles');
+        if (more.length) {
+            moreEl.innerHTML = more.map(a => `
+                <a href="article.html?id=${a.id}" class="story-hz" style="text-decoration:none;">
+                    <div>
+                        <div class="story-hz__kicker ${TTR.getCategoryClass(a.category)}">${a.category}</div>
+                        <div class="story-hz__title">${a.title}</div>
+                        <div class="story-hz__meta"><span>${a.author || 'TTR'}</span> · <span>${TTR.timeAgo(a.updatedAt)}</span></div>
+                    </div>
+                    ${a.image ? `<img src="${a.image}" alt="" class="story-hz__image">` : '<div class="story-hz__image skeleton"></div>'}
+                </a>
+            `).join('');
+        } else {
+            document.getElementById('moreStoriesSection').style.display = 'none';
+        }
+        // Handle missing images
+        document.querySelectorAll('img').forEach(img => {
+            img.onerror = function() { this.style.display = 'none'; };
+        });
+    });
+
+    function show404() {
+        document.getElementById('articlePage').innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state__icon">🔍</div>
+                <h2 class="empty-state__title">Article Not Found</h2>
+                <p class="empty-state__text">This article may have been removed or the link is incorrect.</p>
+                <a href="index.html" class="btn btn-primary" style="text-decoration:none;">← Back to Home</a>
+            </div>
+        `;
+        document.getElementById('moreStoriesSection').style.display = 'none';
+    }
+
+    function share(p) {
+        const u = encodeURIComponent(location.href), t = encodeURIComponent(document.title);
+        const links = { wa:`https://wa.me/?text=${t}%20${u}`, x:`https://twitter.com/intent/tweet?text=${t}&url=${u}`, fb:`https://facebook.com/sharer/sharer.php?u=${u}`, em:`mailto:?subject=${t}&body=${u}` };
+        if (links[p]) window.open(links[p], '_blank');
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(location.href).then(() => TTR.showToast('Link copied!', 'success'));
+    }
+    </script>
+</body>
+</html>

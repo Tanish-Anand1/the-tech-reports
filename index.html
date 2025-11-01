@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Tech Reports — India's Leading Technology & Innovation News</title>
+    <meta name="description" content="The Tech Reports delivers breaking technology news, in-depth analysis, and expert opinions on AI, startups, business, and innovation across India and the world. Updated daily.">
+    <meta name="keywords" content="technology news, tech news India, AI news, startup news, business news, innovation, artificial intelligence, machine learning, fintech, cybersecurity, The Tech Reports">
+    <meta name="author" content="The Tech Reports">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="theme-color" content="#0f1923">
+    <meta name="google-site-verification" content="">
+    <link rel="canonical" href="https://thetechreports.tech/">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="The Tech Reports">
+    <meta property="og:title" content="The Tech Reports — India's Leading Technology & Innovation News">
+    <meta property="og:description" content="Breaking technology news, in-depth analysis, and expert opinions on AI, startups, business, and innovation.">
+    <meta property="og:url" content="https://thetechreports.tech/">
+    <meta property="og:locale" content="en_IN">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@thetechreports">
+    <meta name="twitter:title" content="The Tech Reports — Technology & Innovation News">
+    <meta name="twitter:description" content="Breaking technology news, AI, startups, business, and innovation. Updated daily.">
+    <!-- Security -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "NewsMediaOrganization",
+        "name": "The Tech Reports",
+        "url": "https://thetechreports.tech",
+        "description": "India's leading technology and innovation news platform",
+        "foundingDate": "2024",
+        "sameAs": ["https://twitter.com/thetechreports","https://linkedin.com/company/thetechreports"]
+    }
+    </script>
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Breaking Ticker -->
+    <div class="breaking-bar">
+        <div class="breaking-bar__inner">
+            <span class="breaking-bar__label"><span class="breaking-bar__dot"></span>LIVE</span>
+            <div class="breaking-bar__track">
+                <div class="breaking-bar__scroll" id="tickerScroll">
+                    <span>Loading latest headlines…</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar__left">
+                <span class="top-bar__date" id="topBarDate"></span>
+                <span class="top-bar__weather">New Delhi 34°C ☀</span>
+            </div>
+            <div class="top-bar__right">
+                <a href="#">E-Paper</a>
+                <a href="#">Newsletter</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Masthead -->
+    <header class="masthead">
+        <div class="container">
+            <div class="masthead-left">
+                <button class="hamburger" onclick="toggleMobileMenu()">
+                    <span></span><span></span><span></span>
+                </button>
+                <button class="search-trigger" onclick="openSearch()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Search
+                    <kbd>⌘K</kbd>
+                </button>
+            </div>
+            <div class="masthead-center">
+                <a href="index.html">
+                    <div class="masthead__brand">The Tech <em>Reports</em></div>
+                    <div class="masthead__tagline">Truth · Technology · Tomorrow</div>
+                </a>
+            </div>
+            <div class="masthead-right">
+                <button class="btn-subscribe" onclick="TTR.showToast('Thank you for subscribing!','success')">Subscribe</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="container">
+            <div class="main-nav__primary">
+                <a href="#" class="active" onclick="filter('all',this)">Home</a>
+                <a href="#" onclick="filter('Technology',this)">Technology</a>
+                <a href="#" onclick="filter('India',this)">India</a>
+                <a href="#" onclick="filter('World News',this)">World</a>
+                <a href="#" onclick="filter('Business',this)">Business</a>
+                <a href="#" onclick="filter('Startups',this)">Startups</a>
+                <a href="#" onclick="filter('Entertainment',this)">Entertainment</a>
+                <a href="#" onclick="filter('Sports',this)">Sports</a>
+                <a href="#" onclick="filter('Opinion',this)">Opinion</a>
+            </div>
+            <div class="main-nav__more">
+                <a href="#" class="hot">Trending</a>
+                <a href="#">AI & ML</a>
+                <a href="#">EV</a>
+                <a href="#">Space</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay" onclick="if(event.target===this)closeSearch()">
+        <div class="search-panel">
+            <div class="search-panel__input">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="searchInput" placeholder="Search headlines, topics, people…" oninput="handleSearch(this.value)" autofocus>
+                <button class="search-panel__close" onclick="closeSearch()">✕</button>
+            </div>
+            <div class="search-panel__results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="content-grid" id="contentGrid">
+
+            <!-- LEFT RAIL -->
+            <aside class="rail-left" id="railLeft">
+                <div class="section-head">Latest News <span class="section-head__more">View All ›</span></div>
+                <div id="latestList"></div>
+            </aside>
+
+            <!-- MAIN FEED -->
+            <section class="main-feed" id="mainFeed">
+                <!-- JS rendered -->
+            </section>
+
+            <!-- RIGHT RAIL -->
+            <aside class="rail-right" id="railRight">
+                <div class="section-head section-head--red">Trending <span class="section-head__more">More ›</span></div>
+                <div id="trendingList"></div>
+
+                <div class="premium-box">
+                    <div class="premium-box__head">TTR Premium <span class="premium-box__badge">PRO</span></div>
+                    <div id="premiumList"></div>
+                </div>
+
+                <div class="newsletter-widget">
+                    <h4>Daily Briefing</h4>
+                    <p>Get the top tech stories in your inbox every morning. No spam.</p>
+                    <input type="email" id="subscribeEmail" placeholder="your@email.com">
+                    <button onclick="subscribeUser()">Sign Up Free</button>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- Section Band (extra section below main grid) -->
+    <section class="section-band" id="sectionBand">
+        <div class="container">
+            <div class="section-head">More from The Tech Reports</div>
+            <div class="story-row story-row--3" id="moreStoriesGrid"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-cta">
+            <div class="container">
+                <div class="footer-cta__inner">
+                    <div>
+                        <h3 class="footer-cta__title">Stay ahead of the curve</h3>
+                        <p class="footer-cta__text">Join 50,000+ readers. The top tech stories, delivered free every morning.</p>
+                    </div>
+                    <div class="footer-cta__form">
+                        <input type="email" id="footerEmail" placeholder="Enter your email">
+                        <button onclick="footerSubscribe()">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="footer-rule">
+        <div class="footer-top">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <div class="footer-brand__title">The Tech <em>Reports</em></div>
+                        <p>Independent technology journalism. Delivering in-depth analysis, breaking news, and expert opinions daily.</p>
+                        <div class="footer-social">
+                            <a href="https://twitter.com" target="_blank" title="Twitter/X" class="footer-social__btn">𝕏</a>
+                            <a href="https://facebook.com" target="_blank" title="Facebook" class="footer-social__btn">f</a>
+                            <a href="https://instagram.com" target="_blank" title="Instagram" class="footer-social__btn">🎨</a>
+                            <a href="https://linkedin.com" target="_blank" title="LinkedIn" class="footer-social__btn">in</a>
+                            <a href="https://youtube.com" target="_blank" title="YouTube" class="footer-social__btn">▶</a>
+                        </div>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Sections</h4>
+                        <a href="#" onclick="filterFromFooter('Technology')">Technology</a>
+                        <a href="#" onclick="filterFromFooter('Startups')">Startups</a>
+                        <a href="#" onclick="filterFromFooter('Business')">Business</a>
+                        <a href="#" onclick="filterFromFooter('World News')">World</a>
+                        <a href="#" onclick="filterFromFooter('Entertainment')">Entertainment</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Company</h4>
+                        <a href="about.html">About Us</a>
+                        <a href="contact.html">Contact</a>
+                        <a href="advertise.html">Advertise</a>
+                        <a href="privacy.html">Privacy Policy</a>
+                        <a href="terms.html">Terms of Service</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>More</h4>
+                        <a href="index.html">Home</a>
+                        <a href="#" onclick="openSearch();return false;">Search Articles</a>
+                        <a href="#" onclick="document.getElementById('subscribeEmail').focus();window.scrollTo({top:document.getElementById('subscribeEmail').offsetTop-200,behavior:'smooth'});return false;">Newsletter</a>
+                        <a href="javascript:void(0)" onclick="openAdminGate()" style="opacity:0.15;font-size:8px;margin-top:12px;">System</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <span>© 2026 The Tech Reports. All rights reserved.</span>
+                <div class="footer-bottom__links">
+                    <a href="privacy.html">Privacy</a>
+                    <a href="terms.html">Terms</a>
+                    <a href="index.html">Sitemap</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Admin Password Gate -->
+    <div class="admin-gate" id="adminGate" onclick="if(event.target===this)closeAdminGate()">
+        <div class="admin-gate__box">
+            <h3>🔒 Admin Access</h3>
+            <p>Enter the admin password to continue.</p>
+            <input type="password" id="adminPass" placeholder="Password" onkeydown="if(event.key==='Enter')checkAdminPass()">
+            <button onclick="checkAdminPass()">Unlock</button>
+            <button class="cancel" onclick="closeAdminGate()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="toast-container"></div>
+
+    <script src="app.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('topBarDate').textContent = TTR.getCurrentDateString();
+        render('all');
+        loadTicker();
+    });
+
+    async function loadTicker() {
+        try {
+            const res = await fetch('/api/ticker');
+            const headlines = await res.json();
+            if (headlines.length) {
+                const doubled = [...headlines, ...headlines];
+                document.getElementById('tickerScroll').innerHTML = doubled.map(h => `<span>${h}</span>`).join('');
+            }
+        } catch (e) { console.log('Ticker load failed'); }
+    }
+
+    document.addEventListener('ttrDataReady', () => {
+        const activeLink = document.querySelector('.main-nav__primary a.active');
+        const cat = activeLink ? (activeLink.textContent === 'Home' ? 'all' : activeLink.textContent) : 'all';
+        render(cat);
+    });
+
+    async function subscribeUser() {
+        const emailInput = document.getElementById('subscribeEmail');
+        const email = emailInput.value.trim();
+        if(!email) return TTR.showToast('Please enter your email', 'error');
+        
+        try {
+            const res = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if(data.success) {
+                TTR.showToast('Subscribed! Check your inbox.', 'success');
+                emailInput.value = '';
+            } else {
+                TTR.showToast(data.error || 'Failed to subscribe', 'error');
+            }
+        } catch (e) {
+            TTR.showToast('Network error', 'error');
+        }
+    }
+
+
+
+    function render(cat) {
+        const articles = cat === 'all' ? TTR.getPublishedArticles() : TTR.getArticlesByCategory(cat);
+        renderFeed(articles);
+        renderLatest(articles);
+        renderTrending();
+        renderPremium();
+        renderMoreStories(articles);
+    }
+
+    /* ---- Main Feed ---- */
+    function renderFeed(articles) {
+        const el = document.getElementById('mainFeed');
+        if (!articles.length) {
+            el.innerHTML = `<div class="no-articles-hero">
+                <div style="font-size:2.5rem;margin-bottom:12px;opacity:0.3;">📰</div>
+                <h2 style="font-family:var(--font-headline);font-size:var(--text-2xl);margin-bottom:8px;">No articles yet</h2>
+                <p style="font-family:var(--font-ui);font-size:var(--text-sm);color:var(--ink-caption);margin-bottom:16px;">Head to the Admin Panel to create your first article.</p>
+                <a href="admin.html" class="btn btn-primary" style="text-decoration:none;">Go to Admin Panel →</a>
+            </div>`;
+            document.getElementById('sectionBand').style.display = 'none';
+            return;
+        }
+        document.getElementById('sectionBand').style.display = '';
+
+        let html = '';
+        const hero = articles[0];
+
+        // -- Lead Story --
+        html += `<a href="article.html?id=${hero.id}" class="hero-story" style="display:block;text-decoration:none;">
+            <div class="hero-story__kicker ${TTR.getCategoryClass(hero.category)}">${hero.category}</div>
+            <h1 class="hero-story__title">${hero.title}</h1>
+            <p class="hero-story__deck">${hero.subtitle || TTR.truncate(hero.content, 220)}</p>
+            <div class="hero-story__meta">
+                <span>${hero.author || 'TTR Correspondent'}</span>
+                <span class="dot"></span>
+                <span>${hero.location || ''}</span>
+                <span class="dot"></span>
+                <span>Updated ${TTR.timeAgo(hero.updatedAt)}</span>
+            </div>
+            ${hero.image ? `<img src="${hero.image}" alt="${hero.title}" class="hero-story__image" onerror="this.style.display='none'">
+            <div class="hero-story__caption">${hero.sourcePublisher ? 'Photo: ' + hero.sourcePublisher : 'Image: The Tech Reports'}</div>` : ''}
+        </a>`;
+
+        // -- 2-up row if enough articles --
+        if (articles.length >= 3) {
+            html += `<div class="story-row story-row--2">`;
+            for (let i = 1; i < 3; i++) {
+                const a = articles[i];
+                html += storyCard(a);
+            }
+            html += `</div>`;
+        }
+
+        // -- Section divider --
+        if (articles.length > 3) {
+            html += `<div class="section-head" style="margin-top:8px;">More Stories</div>`;
+        }
+
+        // -- Horizontal stories (max 35) --
+        const maxHorizontal = Math.min(articles.length, 38);
+        for (let i = 3; i < maxHorizontal; i++) {
+            const a = articles[i];
+            html += storyHorizontal(a);
+        }
+
+        el.innerHTML = html;
+    }
+
+    function storyCard(a) {
+        return `<a href="article.html?id=${a.id}" class="story-card" style="text-decoration:none;">
+            ${a.image ? `<img src="${a.image}" alt="" class="story-card__image" onerror="this.style.display='none'">` : ''}
+            <div class="story-card__kicker ${TTR.getCategoryClass(a.category)}">${a.category}</div>
+            <div class="story-card__title">${a.title}</div>
+            <div class="story-card__deck">${a.subtitle || TTR.truncate(a.content, 100)}</div>
+            <div class="story-card__time">${TTR.timeAgo(a.updatedAt)}</div>
+        </a>`;
+    }
+
+    function storyHorizontal(a) {
+        return `<a href="article.html?id=${a.id}" class="story-hz" style="text-decoration:none;">
+            <div>
+                <div class="story-hz__kicker ${TTR.getCategoryClass(a.category)}">${a.category}</div>
+                <div class="story-hz__title">${a.title}</div>
+                <div class="story-hz__deck">${a.subtitle || TTR.truncate(a.content, 90)}</div>
+                <div class="story-hz__meta">
+                    <span>${a.author || 'TTR'}</span>
+                    <span style="width:3px;height:3px;background:var(--ink-faint);border-radius:50%;"></span>
+                    <span>${TTR.timeAgo(a.updatedAt)}</span>
+                    ${a.sourcePublisher ? `<span style="width:3px;height:3px;background:var(--ink-faint);border-radius:50%;"></span><span style="color:var(--brand-blue-link);">${a.sourcePublisher}</span>` : ''}
+                </div>
+            </div>
+            ${a.image ? `<img src="${a.image}" alt="" class="story-hz__image" onerror="this.style.display='none'">` : '<div class="story-hz__image skeleton"></div>'}
+        </a>`;
+    }
+
+    /* ---- Left Rail ---- */
+    function renderLatest(articles) {
+        const el = document.getElementById('latestList');
+        const items = articles.slice(0, 6);
+        if (!items.length) { el.innerHTML = '<p style="font-family:var(--font-ui);font-size:var(--text-xs);color:var(--ink-muted);padding:12px 0;">No articles yet</p>'; return; }
+        el.innerHTML = items.map(a => `
+            <a href="article.html?id=${a.id}" class="latest-item">
+                <div class="latest-item__category ${TTR.getCategoryClass(a.category)}">${a.category}</div>
+                <div class="latest-item__title">${a.title}</div>
+                <div class="latest-item__time">${TTR.timeAgo(a.createdAt)}</div>
+            </a>
+        `).join('');
+    }
+
+    /* ---- Right Rail ---- */
+    function renderTrending() {
+        const el = document.getElementById('trendingList');
+        const items = TTR.getPublishedArticles().sort((a,b) => (b.views||0) - (a.views||0)).slice(0, 5);
+        if (!items.length) { el.innerHTML = '<p style="font-family:var(--font-ui);font-size:var(--text-xs);color:var(--ink-muted);padding:8px 0;">—</p>'; return; }
+        el.innerHTML = items.map((a, i) => `
+            <a href="article.html?id=${a.id}" class="trend-item">
+                <span class="trend-item__rank">0${i+1}</span>
+                <div>
+                    <div class="trend-item__title">${a.title}</div>
+                    <div class="trend-item__cat">${a.category}</div>
+                </div>
+            </a>
+        `).join('');
+    }
+
+    function renderPremium() {
+        const el = document.getElementById('premiumList');
+        const items = TTR.getPublishedArticles().slice(0, 4);
+        if (!items.length) { el.innerHTML = '<span style="font-size:var(--text-xs);opacity:0.4;">Coming soon</span>'; return; }
+        el.innerHTML = items.map(a => `<a href="article.html?id=${a.id}">${a.title}</a>`).join('');
+    }
+
+    /* ---- Bottom Band ---- */
+    function renderMoreStories(articles) {
+        const el = document.getElementById('moreStoriesGrid');
+        const offset = Math.min(articles.length, 18);
+        const items = articles.slice(offset, offset + 6);
+        if (!items.length) { document.getElementById('sectionBand').style.display = 'none'; return; }
+        document.getElementById('sectionBand').style.display = '';
+        el.innerHTML = items.map(a => storyCard(a)).join('');
+    }
+
+    /* ---- Filter ---- */
+    function filter(cat, link) {
+        event.preventDefault();
+        document.querySelectorAll('.main-nav__primary a').forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
+        render(cat);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ---- Search ---- */
+    function openSearch() { document.getElementById('searchOverlay').classList.add('active'); document.getElementById('searchInput').focus(); }
+    function closeSearch() { document.getElementById('searchOverlay').classList.remove('active'); document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; }
+
+    document.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+        if (e.key === 'Escape') closeSearch();
+    });
+
+    let searchTimer;
+    function handleSearch(q) {
+        clearTimeout(searchTimer);
+        const el = document.getElementById('searchResults');
+        if (!q || q.trim().length < 2) { el.innerHTML = ''; return; }
+        searchTimer = setTimeout(() => {
+            const results = TTR.searchArticles(q);
+            if (!results.length) {
+                el.innerHTML = `<div style="padding:24px;text-align:center;font-family:var(--font-ui);font-size:var(--text-sm);color:var(--ink-muted);">No results for "<strong>${q}</strong>"</div>`;
+            } else {
+                el.innerHTML = results.map(a => `
+                    <a href="article.html?id=${a.id}" class="search-result-item">
+                        ${a.image ? `<img src="${a.image}" alt="">` : ''}
+                        <div>
+                            <div class="search-result-item__title">${a.title}</div>
+                            <div class="search-result-item__meta">${a.category} · ${TTR.timeAgo(a.updatedAt)}</div>
+                        </div>
+                    </a>
+                `).join('');
+            }
+        }, 200);
+    }
+
+    function toggleMobileMenu() {
+        const nav = document.querySelector('.main-nav');
+        nav.style.display = nav.style.display === 'none' ? '' : 'none';
+    }
+
+    function filterFromFooter(cat) {
+        event.preventDefault();
+        const links = document.querySelectorAll('.main-nav__primary a');
+        links.forEach(a => a.classList.remove('active'));
+        const match = Array.from(links).find(a => a.textContent.includes(cat.split(' ')[0]));
+        if (match) match.classList.add('active');
+        render(cat);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function footerSubscribe() {
+        const inp = document.getElementById('footerEmail');
+        const email = inp.value.trim();
+        if (!email) return TTR.showToast('Please enter your email', 'error');
+        try {
+            const r = await fetch('/api/subscribe', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email}) });
+            const d = await r.json();
+            if (d.success) { TTR.showToast('Subscribed! Welcome aboard.', 'success'); inp.value=''; }
+            else TTR.showToast(d.error||'Failed','error');
+        } catch(e) { TTR.showToast('Network error','error'); }
+    }
+
+    function openAdminGate() { 
+        if (localStorage.getItem('ttr_admin_token') === 'iwillbemorerichthanelonmusk') {
+            window.location.href = 'admin.html';
+            return;
+        }
+        document.getElementById('adminGate').classList.add('active'); 
+        document.getElementById('adminPass').focus(); 
+    }
+    function closeAdminGate() { document.getElementById('adminGate').classList.remove('active'); document.getElementById('adminPass').value=''; }
+    function checkAdminPass() {
+        const pass = document.getElementById('adminPass').value;
+        if (pass === 'iwillbemorerichthanelonmusk') {
+            localStorage.setItem('ttr_admin_token', pass);
+            window.location.href = 'admin.html';
+        } else {
+            TTR.showToast('Wrong password', 'error');
+            document.getElementById('adminPass').value = '';
+        }
+    }
+    </script>
+</body>
+</html>

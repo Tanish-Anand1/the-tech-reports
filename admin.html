@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        // Security check
+        if (localStorage.getItem('ttr_admin_token') !== 'iwillbemorerichthanelonmusk') {
+            window.location.href = 'index.html';
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — The Tech Reports</title>
+    <meta name="theme-color" content="#0f1923">
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body{background:var(--bg-cool)}
+        .admin-mobile-toggle{display:none;position:fixed;top:12px;left:12px;z-index:300;width:36px;height:36px;background:var(--brand-navy);color:#fff;border-radius:6px;align-items:center;justify-content:center;font-size:var(--text-md);box-shadow:var(--shadow-md);cursor:pointer}
+        @media(max-width:768px){.admin-mobile-toggle{display:flex}}
+        .admin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:150}
+        .admin-overlay.active{display:block}
+        .admin-tab{display:none}
+        .admin-tab.active{display:block}
+    </style>
+</head>
+<body>
+
+    <button class="admin-mobile-toggle" onclick="toggleSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="admin-overlay" id="adminOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-sidebar__logo">The Tech <em>Reports</em></div>
+            <div class="admin-sidebar__subtitle">Admin Dashboard</div>
+            <nav class="admin-nav">
+                <a class="admin-nav__item active" data-tab="dashboard" onclick="tab('dashboard',this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                    Dashboard
+                </a>
+                <a class="admin-nav__item" data-tab="articles" onclick="tab('articles',this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    All Articles
+                </a>
+                <a class="admin-nav__item" data-tab="create" onclick="tab('create',this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Create Article
+                </a>
+            </nav>
+            <div style="margin-top:auto;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">
+                <a href="index.html" class="admin-nav__item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                    View Website
+                </a>
+                <div style="font-family:var(--font-ui);font-size:var(--text-2xs);color:rgba(255,255,255,0.25);padding:6px 12px;margin-top:4px;">v2.0 — The Tech Reports</div>
+            </div>
+        </aside>
+
+        <main class="admin-main" id="adminMain">
+
+            <!-- DASHBOARD -->
+            <div class="admin-tab active" id="tab-dashboard">
+                <div class="admin-header">
+                    <h1>Dashboard</h1>
+                    <div class="admin-header__actions">
+                        <button class="btn btn-secondary" onclick="triggerEmail()">Send Newsletter</button>
+                        <button class="btn btn-secondary" onclick="triggerScrape()">Force Scrape</button>
+                        <button class="btn btn-primary" onclick="tab('create',document.querySelector('[data-tab=create]'))">+ New Article</button>
+                    </div>
+                </div>
+                <div class="stats-grid" id="statsGrid"></div>
+
+                <!-- Agentic Scraper Section -->
+                <div style="background:var(--bg-white);border:1px solid var(--border-hairline);border-radius:8px;padding:20px;margin-bottom:24px;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                        <div style="width:32px;height:32px;border-radius:4px;background:var(--brand-navy);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-ui);font-weight:700;font-size:14px;">AI</div>
+                        <div>
+                            <h3 style="font-family:var(--font-headline);font-size:var(--text-lg);margin:0;color:var(--ink-headline);">Agentic Scraper</h3>
+                            <p style="font-family:var(--font-ui);font-size:var(--text-xs);color:var(--ink-caption);margin:0;">Ask the AI agent to scrape and publish specific news.</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:12px;">
+                        <input type="text" id="agentPrompt" placeholder="e.g. 'Scrape news about Indian fintech startups' or 'Find Elon Musk SpaceX updates'" style="flex:1;padding:12px 16px;border:1px solid var(--border-light);border-radius:6px;font-family:var(--font-ui);font-size:var(--text-sm);outline:none;">
+                        <button class="btn btn-primary" id="btnAgentScrape" onclick="runAgenticScraper()" style="white-space:nowrap;">Run Agent</button>
+                    </div>
+                    <div id="agentStatus" style="margin-top:12px;font-family:var(--font-ui);font-size:var(--text-xs);color:var(--ink-muted);display:none;"></div>
+                </div>
+
+                <div class="articles-table">
+                    <div class="articles-table__header">
+                        <span class="articles-table__title">Recent Articles</span>
+                        <button class="btn btn-secondary btn-sm" onclick="tab('articles',document.querySelector('[data-tab=articles]'))">View All</button>
+                    </div>
+                    <div id="dashboardTable"></div>
+                </div>
+            </div>
+
+            <!-- ALL ARTICLES -->
+            <div class="admin-tab" id="tab-articles">
+                <div class="admin-header">
+                    <h1>All Articles</h1>
+                    <div class="admin-header__actions">
+                        <select class="filter-select" id="fCat" onchange="renderTable()"><option value="all">All Categories</option></select>
+                        <select class="filter-select" id="fStatus" onchange="renderTable()"><option value="all">All Status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+                        <button class="btn btn-primary" onclick="tab('create',document.querySelector('[data-tab=create]'))">+ New Article</button>
+                    </div>
+                </div>
+                <div class="articles-table" id="articlesTable"></div>
+            </div>
+
+            <!-- CREATE / EDIT -->
+            <div class="admin-tab" id="tab-create">
+                <div class="admin-header">
+                    <h1 id="editorTitle">Create New Article</h1>
+                    <div class="admin-header__actions">
+                        <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+                        <button class="btn btn-secondary" onclick="save('draft')">Save Draft</button>
+                        <button class="btn btn-primary" onclick="save('published')">Publish</button>
+                    </div>
+                </div>
+
+                <div class="editor-panel">
+                    <div class="editor-form">
+                        <input type="hidden" id="editId" value="">
+
+                        <div class="form-group">
+                            <label>Headline <span class="required">*</span></label>
+                            <input type="text" id="fTitle" class="form-input title-input" placeholder="Write a compelling headline…" oninput="preview()">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Subtitle / Deck</label>
+                            <input type="text" id="fSubtitle" class="form-input" placeholder="Brief summary that appears below the headline…" oninput="preview()">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Category <span class="required">*</span></label>
+                                <select id="fCategory" class="form-input" onchange="preview()"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Author</label>
+                                <input type="text" id="fAuthor" class="form-input" value="The Tech Reports Correspondent">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Dateline / Location</label>
+                            <input type="text" id="fLocation" class="form-input" placeholder="e.g. New Delhi, Bengaluru, Mumbai…">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Featured Image <span class="required">*</span></label>
+                            <div class="image-upload" id="imgUpload" onclick="document.getElementById('imgFile').click()">
+                                <div class="image-upload__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+                                <div class="image-upload__text"><strong>Click to upload</strong> or drag and drop<br><span style="font-size:var(--text-2xs);color:var(--ink-muted);">PNG, JPG, WEBP — max 10 MB</span></div>
+                                <input type="file" id="imgFile" accept="image/*" onchange="onImage(this)">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Article Body <span class="required">*</span></label>
+                            <textarea id="fContent" class="form-input content-area" placeholder="Write your article here…&#10;&#10;Separate paragraphs with a blank line.&#10;Wrap text in quotes to create a blockquote." oninput="preview();wordCount()"></textarea>
+                            <div class="word-count" id="wc">0 words</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Status</label>
+                            <div class="status-toggle">
+                                <label><input type="radio" name="fStatus" value="draft"> Draft</label>
+                                <label><input type="radio" name="fStatus" value="published" checked> Published</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Preview -->
+                <div class="preview-panel">
+                    <div class="preview-panel__header">
+                        <span class="preview-panel__title">Live Preview</span>
+                    </div>
+                    <div id="previewContent" style="padding:24px;">
+                        <div style="text-align:center;padding:32px;color:var(--ink-muted);font-family:var(--font-ui);font-size:var(--text-sm);">Start typing to see a preview…</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal-overlay" id="delModal">
+        <div class="modal">
+            <h3>Delete Article</h3>
+            <p>This cannot be undone. Are you sure?</p>
+            <div class="modal__actions">
+                <button class="btn btn-secondary" onclick="closeDelete()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container"></div>
+
+    <script src="app.js"></script>
+    <script>
+        // Ensure all app.js fetch calls use the token if needed
+        const token = localStorage.getItem('ttr_admin_token');
+        
+        async function runAgenticScraper() {
+            const prompt = document.getElementById('agentPrompt').value.trim();
+            if (!prompt) return;
+            const btn = document.getElementById('btnAgentScrape');
+            const status = document.getElementById('agentStatus');
+            btn.disabled = true;
+            btn.textContent = 'Agent Running...';
+            status.style.display = 'block';
+            status.innerHTML = `<span class="spinner"></span> Analyzing intent and fetching articles... this may take up to a minute.`;
+            
+            try {
+                const res = await fetch('/api/admin/agent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ prompt })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    status.innerHTML = `<span style="color:var(--cat-india)">✔ Successfully scraped ${data.count} articles about "${data.topic}"</span>`;
+                    document.dispatchEvent(new Event('ttrDataReady')); // Refresh
+                } else {
+                    status.innerHTML = `<span style="color:var(--brand-crimson)">✖ Agent failed: ${data.error}</span>`;
+                }
+            } catch (e) {
+                status.innerHTML = `<span style="color:var(--brand-crimson)">✖ Network error occurred.</span>`;
+            }
+            btn.disabled = false;
+            btn.textContent = 'Run Agent';
+            document.getElementById('agentPrompt').value = '';
+        }
+
+    let delTarget = null, imgData = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Populate category selects
+        const cats = TTR.DEFAULT_CATEGORIES;
+        const s1 = document.getElementById('fCategory');
+        const s2 = document.getElementById('fCat');
+        cats.forEach(c => { s1.innerHTML += `<option value="${c}">${c}</option>`; s2.innerHTML += `<option value="${c}">${c}</option>`; });
+
+        renderDash();
+        renderTable();
+
+        // Check edit param
+        const eid = new URLSearchParams(location.search).get('edit');
+        if (eid) { loadEdit(eid); tab('create', document.querySelector('[data-tab=create]')); }
+    });
+
+    document.addEventListener('ttrDataReady', () => {
+        renderDash();
+        renderTable();
+    });
+
+    async function triggerScrape() {
+        if(!confirm('Force manual scrape?')) return;
+        TTR.showToast('Scraping started...', 'success');
+        fetch('/api/admin/scrape', { 
+            method: 'POST', 
+            headers: { 'Authorization': `Bearer ${token}` } 
+        }).catch(e=>console.error(e));
+    }
+
+    async function triggerEmail() {
+        TTR.showToast('Dispatching Newsletters...', 'success');
+        try {
+            await fetch('/api/admin/email', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    /* ---- Tabs ---- */
+    function tab(name, el) {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.admin-nav__item').forEach(n => n.classList.remove('active'));
+        document.getElementById('tab-' + name).classList.add('active');
+        if (el) el.classList.add('active');
+        if (name === 'dashboard') renderDash();
+        if (name === 'articles') renderTable();
+        document.getElementById('adminMain').scrollTop = 0;
+    }
+
+    /* ---- Dashboard ---- */
+    function renderDash() {
+        const all = TTR.getArticles();
+        const pub = all.filter(a => a.status === 'published').length;
+        const dra = all.filter(a => a.status === 'draft').length;
+        const views = all.reduce((s, a) => s + (a.views || 0), 0);
+
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card"><div class="stat-card__label">Total Articles</div><div class="stat-card__value">${all.length}</div><div class="stat-card__change">All time</div></div>
+            <div class="stat-card"><div class="stat-card__label">Published</div><div class="stat-card__value">${pub}</div><div class="stat-card__change">Live now</div></div>
+            <div class="stat-card"><div class="stat-card__label">Drafts</div><div class="stat-card__value">${dra}</div><div class="stat-card__change">Pending</div></div>
+            <div class="stat-card"><div class="stat-card__label">Total Views</div><div class="stat-card__value">${views.toLocaleString()}</div><div class="stat-card__change">All articles</div></div>
+        `;
+
+        const recent = all.slice(0, 5);
+        document.getElementById('dashboardTable').innerHTML = recent.length ? makeTable(recent) : `<div class="empty-state"><div class="empty-state__icon">📝</div><h3 class="empty-state__title">No articles yet</h3><p class="empty-state__text">Create your first article to get started.</p><button class="btn btn-primary" onclick="tab('create',document.querySelector('[data-tab=create]'))">+ Create Article</button></div>`;
+    }
+
+    /* ---- Articles Table ---- */
+    function renderTable() {
+        let arts = TTR.getArticles();
+        const c = document.getElementById('fCat').value;
+        const s = document.getElementById('fStatus').value;
+        if (c !== 'all') arts = arts.filter(a => a.category === c);
+        if (s !== 'all') arts = arts.filter(a => a.status === s);
+        document.getElementById('articlesTable').innerHTML = arts.length ? makeTable(arts) : `<div class="empty-state"><div class="empty-state__icon">📄</div><h3 class="empty-state__title">No articles found</h3><p class="empty-state__text">Change your filters or create a new article.</p></div>`;
+    }
+
+    function makeTable(arts) {
+        return `<table><thead><tr><th>Article</th><th>Category</th><th>Status</th><th>Date</th><th>Views</th><th>Actions</th></tr></thead><tbody>${arts.map(a => `
+            <tr>
+                <td><div class="table-article-info">${a.image ? `<img src="${a.image}" class="table-thumb">` : '<div class="table-thumb skeleton"></div>'}<span class="table-article-title">${a.title}</span></div></td>
+                <td><span class="${TTR.getCategoryClass(a.category)}" style="font-weight:700;font-size:var(--text-2xs);text-transform:uppercase;">${a.category}</span></td>
+                <td><span class="status-badge ${a.status}">${a.status === 'published' ? 'Published' : 'Draft'}</span></td>
+                <td style="white-space:nowrap;font-size:var(--text-2xs);">${TTR.formatDateTime(a.createdAt)}</td>
+                <td>${(a.views || 0).toLocaleString()}</td>
+                <td><div class="table-actions">
+                    ${a.status === 'published' ? `<a href="article.html?id=${a.id}" target="_blank" class="btn btn-secondary btn-sm">View</a>` : ''}
+                    <button class="btn btn-secondary btn-sm" onclick="loadEdit('${a.id}');tab('create',document.querySelector('[data-tab=create]'))">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="openDelete('${a.id}')">Delete</button>
+                </div></td>
+            </tr>`).join('')}</tbody></table>`;
+    }
+
+    /* ---- Image Upload ---- */
+    async function onImage(input) {
+        const data = await TTR.handleImageUpload(input);
+        if (!data) return;
+        imgData = data;
+        const el = document.getElementById('imgUpload');
+        el.classList.add('has-image');
+        el.innerHTML = `<img src="${data}" alt=""><div class="image-upload__remove" onclick="event.stopPropagation();removeImg()">✕</div><input type="file" id="imgFile" accept="image/*" onchange="onImage(this)">`;
+        preview();
+    }
+
+    function removeImg() {
+        imgData = null;
+        const el = document.getElementById('imgUpload');
+        el.classList.remove('has-image');
+        el.innerHTML = `<div class="image-upload__icon">📷</div><div class="image-upload__text"><strong>Click to upload</strong> or drag and drop<br><span style="font-size:var(--text-2xs);color:var(--ink-muted);">PNG, JPG, WEBP — max 10 MB</span></div><input type="file" id="imgFile" accept="image/*" onchange="onImage(this)">`;
+        preview();
+    }
+
+    /* ---- Word Count ---- */
+    function wordCount() {
+        const v = document.getElementById('fContent').value;
+        const w = v.trim() ? v.trim().split(/\s+/).length : 0;
+        document.getElementById('wc').textContent = `${w} word${w !== 1 ? 's' : ''} · ${v.length} chars`;
+    }
+
+    /* ---- Live Preview ---- */
+    function preview() {
+        const t = document.getElementById('fTitle').value;
+        const s = document.getElementById('fSubtitle').value;
+        const c = document.getElementById('fCategory').value;
+        const body = document.getElementById('fContent').value;
+
+        if (!t && !body) { document.getElementById('previewContent').innerHTML = '<div style="text-align:center;padding:32px;color:var(--ink-muted);font-family:var(--font-ui);font-size:var(--text-sm);">Start typing to see a preview…</div>'; return; }
+
+        const formatted = body.split('\n\n').filter(p => p.trim()).map(p => {
+            p = p.trim();
+            return (p.startsWith('"') || p.startsWith('\u201C')) ? `<blockquote style="border-left:3px solid var(--brand-gold);padding:12px 16px;background:var(--bg-warm);margin:16px 0;font-style:italic;color:var(--ink-secondary);">${p}</blockquote>` : `<p style="margin-bottom:16px;line-height:1.75;">${p}</p>`;
+        }).join('');
+
+        document.getElementById('previewContent').innerHTML = `
+            <div style="max-width:640px;">
+                <span class="${TTR.getCategoryClass(c)}" style="font-family:var(--font-ui);font-size:var(--text-2xs);font-weight:800;text-transform:uppercase;letter-spacing:0.1em;">${c}</span>
+                <h1 style="font-family:var(--font-headline);font-size:var(--text-3xl);font-weight:900;line-height:1.15;color:var(--ink-black);margin:8px 0;letter-spacing:-0.02em;">${t || 'Untitled'}</h1>
+                ${s ? `<p style="font-family:var(--font-body);font-size:var(--text-base);color:var(--ink-secondary);line-height:1.5;border-left:3px solid var(--brand-crimson);padding-left:14px;margin-bottom:14px;">${s}</p>` : ''}
+                ${imgData ? `<img src="${imgData}" style="width:100%;margin:12px 0;">` : ''}
+                <div style="font-family:var(--font-body);font-size:var(--text-base);color:var(--ink-body);">${formatted || '<p style="color:var(--ink-muted);font-style:italic;">Content preview…</p>'}</div>
+            </div>`;
+    }
+
+    /* ---- Save ---- */
+    async function save(status) {
+        const title = document.getElementById('fTitle').value.trim();
+        const content = document.getElementById('fContent').value.trim();
+        if (!title) { TTR.showToast('Enter a headline', 'error'); return; }
+        if (!content) { TTR.showToast('Enter article content', 'error'); return; }
+
+        const art = {
+            title, content, status,
+            subtitle: document.getElementById('fSubtitle').value.trim(),
+            category: document.getElementById('fCategory').value,
+            author: document.getElementById('fAuthor').value.trim() || 'The Tech Reports Correspondent',
+            location: document.getElementById('fLocation').value.trim(),
+            image: imgData || '',
+            featured: false
+        };
+
+        const id = document.getElementById('editId').value;
+        try {
+            await fetch('/api/articles' + (id ? `/${id}` : ''), {
+                method: id ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(art)
+            });
+            TTR.showToast('Article saved!', 'success');
+            document.dispatchEvent(new Event('ttrDataReady'));
+            clearForm();
+            tab('articles', document.querySelector('[data-tab=articles]'));
+        } catch (e) {
+            TTR.showToast('Error saving article', 'error');
+        }
+    }
+
+    /* ---- Edit ---- */
+    function loadEdit(id) {
+        const a = TTR.getArticleById(id);
+        if (!a) return TTR.showToast('Article not found', 'error');
+        document.getElementById('editId').value = a.id;
+        document.getElementById('fTitle').value = a.title || '';
+        document.getElementById('fSubtitle').value = a.subtitle || '';
+        document.getElementById('fCategory').value = a.category || 'Technology';
+        document.getElementById('fAuthor').value = a.author || '';
+        document.getElementById('fLocation').value = a.location || '';
+        document.getElementById('fContent').value = a.content || '';
+        const r = document.querySelector(`input[name="fStatus"][value="${a.status || 'draft'}"]`);
+        if (r) r.checked = true;
+        if (a.image) { imgData = a.image; const el = document.getElementById('imgUpload'); el.classList.add('has-image'); el.innerHTML = `<img src="${a.image}" alt=""><div class="image-upload__remove" onclick="event.stopPropagation();removeImg()">✕</div><input type="file" id="imgFile" accept="image/*" onchange="onImage(this)">`; }
+        document.getElementById('editorTitle').textContent = 'Edit Article';
+        preview(); wordCount();
+    }
+
+    function clearForm() {
+        document.getElementById('editId').value = '';
+        document.getElementById('fTitle').value = '';
+        document.getElementById('fSubtitle').value = '';
+        document.getElementById('fCategory').value = 'Technology';
+        document.getElementById('fAuthor').value = 'The Tech Reports Correspondent';
+        document.getElementById('fLocation').value = '';
+        document.getElementById('fContent').value = '';
+        document.querySelector('input[name="fStatus"][value="published"]').checked = true;
+        removeImg(); preview(); wordCount();
+        document.getElementById('editorTitle').textContent = 'Create New Article';
+    }
+
+    /* ---- Delete ---- */
+    function openDelete(id) { delTarget = id; document.getElementById('delModal').classList.add('active'); }
+    function closeDelete() { delTarget = null; document.getElementById('delModal').classList.remove('active'); }
+    async function confirmDelete() {
+        if (!delTarget) return;
+        try {
+            await fetch(`/api/articles/${delTarget}`, { 
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            TTR.showToast('Article deleted', 'success');
+            closeDelete();
+            document.dispatchEvent(new Event('ttrDataReady'));
+        } catch (e) {
+            TTR.showToast('Error deleting', 'error');
+        }
+    }
+
+    /* ---- Sidebar ---- */
+    function toggleSidebar() { document.getElementById('adminSidebar').classList.toggle('open'); document.getElementById('adminOverlay').classList.toggle('active'); }
+    </script>
+</body>
+</html>
