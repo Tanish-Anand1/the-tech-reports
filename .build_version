@@ -1,1 +1,1 @@
-Build 192 | Add rate limiting between OpenAI calls | 2026-03-10T04:42:53.450Z
+Build 193 | Implement 1.5s cooldown every 5 articles | 2026-03-10T11:27:14.641Z
