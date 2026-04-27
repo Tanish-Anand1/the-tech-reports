@@ -6,13 +6,37 @@
 const NEWSAPI_KEY = "7b1dbe422b9e4f2daf4722e178db1b66";
 const OPENAI_KEY = "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";
 const ADMIN_TOKEN = "iwillbemorerichthanelonmusk";
-const SPREADSHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId(); 
+
+// Gets the ID from Script Properties (or null if not set yet)
+function getSpreadsheetId() {
+  let id = PropertiesService.getScriptProperties().getProperty("SPREADSHEET_ID");
+  if (!id) {
+    try {
+      id = SpreadsheetApp.getActiveSpreadsheet().getId();
+    } catch(e) {
+      id = null;
+    }
+  }
+  return id;
+}
 
 // ============================================================================
 // 1. INITIALIZATION (Run this once manually in the Apps Script Editor)
 // ============================================================================
 function setupSheets() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let id = getSpreadsheetId();
+  let ss;
+  
+  if (!id) {
+    // Automatically create a new Google Sheet in the user's Drive
+    ss = SpreadsheetApp.create("The Tech Reports DB");
+    id = ss.getId();
+    PropertiesService.getScriptProperties().setProperty("SPREADSHEET_ID", id);
+    Logger.log("Created NEW Spreadsheet! You can view it here: " + ss.getUrl());
+  } else {
+    ss = SpreadsheetApp.openById(id);
+    Logger.log("Using existing Spreadsheet: " + ss.getUrl());
+  }
   
   let articlesSheet = ss.getSheetByName("Articles");
   if (!articlesSheet) {
@@ -129,7 +153,9 @@ function processImage(imageData) {
 // ============================================================================
 
 function getArticlesFromSheet() {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName("Articles");
+  const id = getSpreadsheetId();
+  if (!id) return [];
+  const sheet = SpreadsheetApp.openById(id).getSheetByName("Articles");
   if (!sheet) return [];
   
   const data = sheet.getDataRange().getValues();
@@ -155,7 +181,9 @@ function getArticlesFromSheet() {
 }
 
 function createArticle(data) {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName("Articles");
+  const id = getSpreadsheetId();
+  if (!id) throw new Error("Database not setup");
+  const sheet = SpreadsheetApp.openById(id).getSheetByName("Articles");
   const imgUrl = processImage(data.image);
   const now = new Date().toISOString();
   
@@ -180,12 +208,14 @@ function createArticle(data) {
   return { success: true };
 }
 
-function updateArticle(id, data) {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName("Articles");
+function updateArticle(artId, data) {
+  const id = getSpreadsheetId();
+  if (!id) throw new Error("Database not setup");
+  const sheet = SpreadsheetApp.openById(id).getSheetByName("Articles");
   const rows = sheet.getDataRange().getValues();
   
   for (let i = 1; i < rows.length; i++) {
-    if (rows[i][0] === id) { // Col A is ID
+    if (rows[i][0] === artId) { // Col A is ID
       const imgUrl = processImage(data.image);
       const now = new Date().toISOString();
       
@@ -199,12 +229,14 @@ function updateArticle(id, data) {
   throw new Error("Article not found");
 }
 
-function deleteArticle(id) {
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName("Articles");
+function deleteArticle(artId) {
+  const id = getSpreadsheetId();
+  if (!id) throw new Error("Database not setup");
+  const sheet = SpreadsheetApp.openById(id).getSheetByName("Articles");
   const rows = sheet.getDataRange().getValues();
   
   for (let i = 1; i < rows.length; i++) {
-    if (rows[i][0] === id) {
+    if (rows[i][0] === artId) {
       sheet.deleteRow(i + 1);
       return { success: true };
     }
@@ -214,7 +246,9 @@ function deleteArticle(id) {
 
 function addSubscriber(email) {
   if (!email || !email.includes("@")) throw new Error("Invalid email");
-  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName("Subscribers");
+  const id = getSpreadsheetId();
+  if (!id) throw new Error("Database not setup");
+  const sheet = SpreadsheetApp.openById(id).getSheetByName("Subscribers");
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] === email) return { success: true, message: "Already subscribed" };
@@ -313,8 +347,10 @@ Original Desc: ${raw.description || ''}`;
 // 6. NEWSLETTER
 // ============================================================================
 function sendDailyNewsletter() {
-  const articlesSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName("Articles");
-  const subSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName("Subscribers");
+  const id = getSpreadsheetId();
+  if (!id) return { success: false, error: "Database not setup" };
+  const articlesSheet = SpreadsheetApp.openById(id).getSheetByName("Articles");
+  const subSheet = SpreadsheetApp.openById(id).getSheetByName("Subscribers");
   if (!articlesSheet || !subSheet) return { success: false, error: "Sheets missing" };
   
   const subsData = subSheet.getDataRange().getValues();
