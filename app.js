@@ -28,11 +28,12 @@ async function loadArticlesFromServer() {
         const res = await fetch('/api/articles');
         if (res.ok) {
             _articles = await res.json();
-            // Dispatch a custom event when articles are ready
-            document.dispatchEvent(new Event('ttrDataReady'));
         }
     } catch (e) {
         console.error("Failed to load articles from server:", e);
+    } finally {
+        // Dispatch custom event when articles are ready (or failed)
+        document.dispatchEvent(new Event('ttrDataReady'));
     }
 }
 
