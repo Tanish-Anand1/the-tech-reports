@@ -224,7 +224,7 @@
                 const data = await res.json();
                 if (data.success) {
                     status.innerHTML = `<span style="color:var(--cat-india)">✔ Successfully scraped ${data.count} articles about "${data.topic}"</span>`;
-                    document.dispatchEvent(new Event('ttrDataReady')); // Refresh
+                    await TTR.loadArticlesFromServer(); // Actually fetch the new data
                 } else {
                     status.innerHTML = `<span style="color:var(--brand-crimson)">✖ Agent failed: ${data.error}</span>`;
                 }
@@ -260,12 +260,24 @@
 
     async function triggerScrape() {
         if(!confirm('Force manual scrape?')) return;
-        TTR.showToast('Scraping started...', 'success');
-        fetch(API_URL, { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'triggerScrape', token: token })
-        }).catch(e=>console.error(e));
+        TTR.showToast('Scraping started... this may take a minute', 'success');
+        try {
+            const res = await fetch(API_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'triggerScrape', token: token })
+            });
+            const data = await res.json();
+            if (data.success) {
+                TTR.showToast(data.message || 'Scrape successful!', 'success');
+                await TTR.loadArticlesFromServer(); // Refresh the list
+            } else {
+                TTR.showToast('Failed: ' + data.error, 'error');
+            }
+        } catch (e) {
+            TTR.showToast('Network error during scrape', 'error');
+            console.error(e);
+        }
     }
 
     async function triggerEmail() {

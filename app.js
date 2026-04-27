@@ -250,6 +250,7 @@ function searchArticles(query) {
 
 // Export for use in HTML pages
 window.TTR = {
+    loadArticlesFromServer,
     getArticles,
     saveArticles,
     getArticleById,
