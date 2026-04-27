@@ -3,7 +3,7 @@
    Handles articles CRUD, rendering, and navigation
    ============================================================ */
 
-const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE"; 
+const API_URL = "https://script.google.com/macros/s/AKfycbzT__75BLa7RIlERBfoGtNG6crJhpnYGD0ona2Sfc1PJ5_lNmP8Zp4ul75xoWbJ8M_n/exec"; 
 
 // ---- Data Layer ----
 const DEFAULT_CATEGORIES = [
