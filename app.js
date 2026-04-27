@@ -3,7 +3,9 @@
    Handles articles CRUD, rendering, and navigation
    ============================================================ */
 
-// ---- Data Layer (Express Backend) ----
+const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE"; 
+
+// ---- Data Layer ----
 const DEFAULT_CATEGORIES = [
     'Technology', 'World News', 'India', 'Business',
     'Startups', 'Opinion', 'Sports', 'Entertainment'
@@ -25,14 +27,13 @@ let _articles = [];
 
 async function loadArticlesFromServer() {
     try {
-        const res = await fetch('/api/articles');
+        const res = await fetch(API_URL + "?action=getArticles");
         if (res.ok) {
             _articles = await res.json();
         }
     } catch (e) {
         console.error("Failed to load articles from server:", e);
     } finally {
-        // Dispatch custom event when articles are ready (or failed)
         document.dispatchEvent(new Event('ttrDataReady'));
     }
 }
@@ -47,8 +48,6 @@ function saveArticles(articles) {
 }
 
 function getArticleById(id) {
-    // Try to get fresh view count
-    fetch(`/api/articles/${id}`).catch(e=>e); 
     return _articles.find(a => a.id === id) || null;
 }
 
@@ -63,10 +62,14 @@ async function createArticle(article) {
     
     // Send to backend
     try {
-        await fetch('/api/articles', {
+        await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(article)
+            body: JSON.stringify({ 
+                action: 'createArticle', 
+                article: article,
+                token: localStorage.getItem('ttr_admin_token') || ''
+            })
         });
     } catch (e) {
         console.error("Save failed", e);
@@ -83,10 +86,15 @@ async function updateArticle(id, updates) {
     
     // Send to backend
     try {
-        await fetch(`/api/articles/${id}`, {
-            method: 'PUT',
+        await fetch(API_URL, {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updates)
+            body: JSON.stringify({
+                action: 'updateArticle',
+                id: id,
+                article: updates,
+                token: localStorage.getItem('ttr_admin_token') || ''
+            })
         });
     } catch (e) {
         console.error("Update failed", e);
@@ -97,7 +105,15 @@ async function updateArticle(id, updates) {
 async function deleteArticle(id) {
     _articles = _articles.filter(a => a.id !== id);
     try {
-        await fetch(`/api/articles/${id}`, { method: 'DELETE' });
+        await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'deleteArticle',
+                id: id,
+                token: localStorage.getItem('ttr_admin_token') || ''
+            })
+        });
     } catch (e) {
         console.error("Delete failed", e);
     }

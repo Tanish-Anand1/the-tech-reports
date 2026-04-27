@@ -265,14 +265,10 @@
     });
 
     async function loadTicker() {
-        try {
-            const res = await fetch('/api/ticker');
-            const headlines = await res.json();
-            if (headlines.length) {
-                const doubled = [...headlines, ...headlines];
-                document.getElementById('tickerScroll').innerHTML = doubled.map(h => `<span>${h}</span>`).join('');
-            }
-        } catch (e) { console.log('Ticker load failed'); }
+        const track = document.getElementById('tickerScroll');
+        // Fallback to static text since ticker API is removed
+        const text = "LATEST: AI models see massive context window improvements • Global tech funding rebounds in Q2 • Silicon Valley startups focus on sustainable computing • Major cybersecurity breach affects millions — read more inside •";
+        track.innerHTML = `<span>${text}</span><span>${text}</span>`;
     }
 
     document.addEventListener('ttrDataReady', () => {
@@ -287,10 +283,10 @@
         if(!email) return TTR.showToast('Please enter your email', 'error');
         
         try {
-            const res = await fetch('/api/subscribe', {
+            const res = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
+                body: JSON.stringify({ action: 'subscribe', email: email })
             });
             const data = await res.json();
             if(data.success) {
@@ -509,7 +505,7 @@
         const email = inp.value.trim();
         if (!email) return TTR.showToast('Please enter your email', 'error');
         try {
-            const r = await fetch('/api/subscribe', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email}) });
+            const r = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action: 'subscribe', email: email}) });
             const d = await r.json();
             if (d.success) { TTR.showToast('Subscribed! Welcome aboard.', 'success'); inp.value=''; }
             else TTR.showToast(d.error||'Failed','error');

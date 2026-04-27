@@ -216,10 +216,10 @@
             status.innerHTML = `<span class="spinner"></span> Analyzing intent and fetching articles... this may take up to a minute.`;
             
             try {
-                const res = await fetch('/api/admin/agent', {
+                const res = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ prompt })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'agent', prompt: prompt, token: token })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -261,16 +261,21 @@
     async function triggerScrape() {
         if(!confirm('Force manual scrape?')) return;
         TTR.showToast('Scraping started...', 'success');
-        fetch('/api/admin/scrape', { 
+        fetch(API_URL, { 
             method: 'POST', 
-            headers: { 'Authorization': `Bearer ${token}` } 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'triggerScrape', token: token })
         }).catch(e=>console.error(e));
     }
 
     async function triggerEmail() {
         TTR.showToast('Dispatching Newsletters...', 'success');
         try {
-            await fetch('/api/admin/email', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+            await fetch(API_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'triggerEmail', token: token })
+            });
         } catch (e) {
             console.error(e);
         }
@@ -400,11 +405,11 @@
 
         const id = document.getElementById('editId').value;
         try {
-            await fetch('/api/articles' + (id ? `/${id}` : ''), {
-                method: id ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify(art)
-            });
+            if (id) {
+                await updateArticle(id, art);
+            } else {
+                await createArticle(art);
+            }
             TTR.showToast('Article saved!', 'success');
             document.dispatchEvent(new Event('ttrDataReady'));
             clearForm();
@@ -451,10 +456,7 @@
     async function confirmDelete() {
         if (!delTarget) return;
         try {
-            await fetch(`/api/articles/${delTarget}`, { 
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            await deleteArticle(delTarget);
             TTR.showToast('Article deleted', 'success');
             closeDelete();
             document.dispatchEvent(new Event('ttrDataReady'));
