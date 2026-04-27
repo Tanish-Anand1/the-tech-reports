@@ -285,7 +285,7 @@
         try {
             const res = await fetch(API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({ action: 'subscribe', email: email })
             });
             const data = await res.json();
@@ -505,7 +505,7 @@
         const email = inp.value.trim();
         if (!email) return TTR.showToast('Please enter your email', 'error');
         try {
-            const r = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action: 'subscribe', email: email}) });
+            const r = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action: 'subscribe', email: email}) });
             const d = await r.json();
             if (d.success) { TTR.showToast('Subscribed! Welcome aboard.', 'success'); inp.value=''; }
             else TTR.showToast(d.error||'Failed','error');

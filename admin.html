@@ -218,7 +218,7 @@
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify({ action: 'agent', prompt: prompt, token: token })
                 });
                 const data = await res.json();
@@ -264,7 +264,7 @@
         try {
             const res = await fetch(API_URL, { 
                 method: 'POST', 
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({ action: 'triggerScrape', token: token })
             });
             const data = await res.json();
@@ -285,7 +285,7 @@
         try {
             await fetch(API_URL, { 
                 method: 'POST', 
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({ action: 'triggerEmail', token: token })
             });
         } catch (e) {

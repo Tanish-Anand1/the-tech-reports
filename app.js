@@ -64,7 +64,7 @@ async function createArticle(article) {
     try {
         await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({ 
                 action: 'createArticle', 
                 article: article,
@@ -88,7 +88,7 @@ async function updateArticle(id, updates) {
     try {
         await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({
                 action: 'updateArticle',
                 id: id,
@@ -107,7 +107,7 @@ async function deleteArticle(id) {
     try {
         await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({
                 action: 'deleteArticle',
                 id: id,
