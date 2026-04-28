@@ -173,7 +173,8 @@ function getArticlesFromSheet() {
       // Convert boolean strings
       if (val === "TRUE" || val === true) val = true;
       if (val === "FALSE" || val === false) val = false;
-      obj[key.charAt(0).toLowerCase() + key.slice(1)] = val; // camelCase
+      let propName = key === "ID" ? "id" : key.charAt(0).toLowerCase() + key.slice(1);
+      obj[propName] = val; // camelCase
     }
     articles.push(obj);
   }
